@@ -1,5 +1,159 @@
 ---
 title: "eds221-day8-interactive-sessiona"
 format: html
+editor_options: 
+  chunk_output_type: console
 ---
+
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+
+
+install.packages("patchwork")
+install.packages("ggrepel")
+install.packages("gghighlight")
+install.packages("palettrrt")
+install.packages("ggExtra")
+install.packages("ggbeesworm")
+
+library(patchwork)
+library(ggrepel)
+library(ggExtra)
+library(gghighlight)
+library(ggbeesworm)
+```
+
+
+```{r}
+lizards <- read_csv(here("data_tidy", "lizards.csv"))
+```
+
+```{r}
+# plotting needs 3 things: ggplot, data (with x and y) and how to plot
+ggplot(data = lizards, aes(x = total_length, y = weight)) + geom_point()  
+
+## other ways to plot the same thing
+
+ggplot(data = lizards) +
+  geom_point(aes(x = total_length, y = weight))
+
+ggplot() +
+  geom_point(data = lizards, aes(x = total_length, y = weight))
+
+### can also layer
+ggplot(data = lizards, aes(x = total_length, y = weight)) + geom_point() + geom_line()
+
+```
+
+```{r}
+# not every geometry type needs mult aes
+## Histograms only require one variable
+
+ggplot(data = lizards, aes(x = total_length)) +
+  geom_histogram()
+
+## jitter plots have 1 cont 1 categ variable
+ggplot(data = lizards, aes(y = common_name, x = weight)) + geom_jitter()
+```
+
+```{r}
+# updating based on constant - no aes
+
+ggplot(data = lizards, aes(x=weight)) + geom_histogram(color = "green", 
+                                                       fill = "blue", 
+                                                       linewidth = 2,
+                                                       linetype = "dotted")
+```
+
+```{r}
+# another ex
+
+## to apply to all data? put in geom. TO apply to variable / based on a variable - put in aes
+
+ggplot(data = lizards, aes(x = total_length, y = weight)) + geom_point(color = "#79B4A9",
+                                                                       fill = "#9cc69B",
+                                                                       shape = 20,
+                                                                       size = 3,
+                                                                       alpha = 0.8)
+```
+
+```{r}
+ggplot(data = lizards, aes(x = total_length, y = weight)) + geom_point(aes(color = common_name, 
+                                                                           size = total_length),
+                                                                       alpha = 0.5) +
+  # change color palette
+  # + scale_color_discrete(type = c(#AA465,...for total amount of groups))
+  scale_color_brewer(palette = "Set3")
+```
+
+```{r}
+# themes 
+
+ggplot(data = lizards, aes(x = site, y = weight)) +
+  geom_jitter(aes(color = common_name)) +
+  theme_light()
+```
+
+```{r}
+# axis names
+
+ggplot(data =  lizards, aes(x = total_length, y = weight)) +
+  geom_point() +
+  labs(x = "Total length (mm)", 
+       y = "Total weight (g)", 
+       title = "Lizard Size")
+```
+
+```{r}
+# facetting
+
+ggplot(data = lizards, aes(x = total_length, y = weight)) +
+  geom_point() + facet_wrap(~common_name, ncol = 3, scales = "free") + labs(x = "Total length (mm)",
+                                                                            y = "Weight (g)")
+```
+
+```{r}
+# multiple facets
+
+ggplot(data = lizards, aes(x = total_length, y = weight)) +
+  
+  geom_point() +
+  facet_grid(sex ~ tail)
+```
+
+```{r}
+# re ordering
+lizard_counts <- lizards %>%
+  count(common_name)
+
+ggplot(data = lizard_counts, aes(y = fct_reorder(common_name, n), x = n)) +
+  geom_col()
+```
+
+```{r}
+# mega example
+ggplot(data = lizards, aes(x = total_length, y = weight)) +
+  geom_point(aes(color = common_name),
+             size = 2) + 
+  theme_minimal() +
+  labs(x = "total length (mm)",
+       y = "weight (g)",
+       color = "lizard species") +
+  facet_wrap(~common_name, scales = "free")
+
+```
+
+```{r}
+# another mega example
+
+ggplot(data = lizards, aes(y = fct_infreq(common_name))) +
+  geom_bar(aes(fill = site)) +
+  theme_minimal() +
+  labs(x = "lizard counts",
+       y = "species (common name)") +
+  facet_grid(sex ~ tail)
+# theme(panel label?)
+```
 
